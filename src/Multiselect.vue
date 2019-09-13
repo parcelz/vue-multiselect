@@ -54,7 +54,7 @@
       <input
         ref="search"
         v-if="searchable"
-        v-mask="'####-##'"
+        v-mask="mask"
         :name="name"
         :id="id"
         type="text"
@@ -179,6 +179,15 @@ export default {
      * @type {String}
      */
     name: {
+      type: String,
+      default: ""
+    },
+    /**
+     * mask schema
+     * @default ''
+     * @type {String}
+     */
+    mask: {
       type: String,
       default: ""
     },
