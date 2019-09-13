@@ -51,30 +51,31 @@
           <div v-show="loading" class="multiselect__spinner" />
         </slot>
       </transition>
-      <!-- <input
-          ref="search"
-          v-if="searchable"
-          :name="name"
-          :id="id"
-          type="text"
-          autocomplete="off"
-          spellcheck="false"
-          :placeholder="placeholder"
-          :style="inputStyle"
-          :value="search"
-          :disabled="disabled"
-          :tabindex="tabindex"
-          @input="updateSearch($event.target.value)"
-          @focus.prevent="activate()"
-          @blur.prevent="deactivate()"
-          @keyup.esc="deactivate()"
-          @keydown.down.prevent="pointerForward()"
-          @keydown.up.prevent="pointerBackward()"
-          @keypress.enter.prevent.stop.self="addPointerElement($event)"
-          @keydown.delete.stop="removeLastElement()"
-          class="multiselect__input"
-          :aria-controls="'listbox-'+id"
-      />-->
+      <input
+        ref="search"
+        v-if="searchable"
+        v-mask="'####-##'"
+        :name="name"
+        :id="id"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        :placeholder="placeholder"
+        :style="inputStyle"
+        :value="search"
+        :disabled="disabled"
+        :tabindex="tabindex"
+        @input="updateSearch($event.target.value)"
+        @focus.prevent="activate()"
+        @blur.prevent="deactivate()"
+        @keyup.esc="deactivate()"
+        @keydown.down.prevent="pointerForward()"
+        @keydown.up.prevent="pointerBackward()"
+        @keypress.enter.prevent.stop.self="addPointerElement($event)"
+        @keydown.delete.stop="removeLastElement()"
+        class="multiselect__input"
+        :aria-controls="'listbox-'+id"
+      />
       <span v-if="isSingleLabelVisible" class="multiselect__single" @mousedown.prevent="toggle">
         <slot name="singleLabel" :option="singleValue">
           <template>{{ currentOptionLabel }}</template>
@@ -165,8 +166,11 @@
 </template>
 
 <script>
+import Vue from "vue";
 import multiselectMixin from "./multiselectMixin";
 import pointerMixin from "./pointerMixin";
+import VueMask from "v-mask";
+Vue.use(VueMask);
 
 export default {
   name: "vue-multiselect",
