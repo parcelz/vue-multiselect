@@ -115,8 +115,5 @@
     "dist",
     "src",
     "index.d.ts"
-  ],
-  "dependencies": {
-    "v-mask": "^2.0.2"
-  }
+  ]
 }
