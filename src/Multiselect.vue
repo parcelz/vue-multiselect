@@ -53,8 +53,32 @@
       </transition>
       <input
         ref="search"
-        v-if="searchable"
+        v-if="searchableAndHasMask"
         v-mask="mask"
+        :name="name"
+        :id="id"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        :placeholder="placeholder"
+        :style="inputStyle"
+        :value="search"
+        :disabled="disabled"
+        :tabindex="tabindex"
+        @input="updateSearch($event.target.value)"
+        @focus.prevent="activate()"
+        @blur.prevent="deactivate()"
+        @keyup.esc="deactivate()"
+        @keydown.down.prevent="pointerForward()"
+        @keydown.up.prevent="pointerBackward()"
+        @keypress.enter.prevent.stop.self="addPointerElement($event)"
+        @keydown.delete.stop="removeLastElement()"
+        class="multiselect__input"
+        :aria-controls="'listbox-'+id"
+      />
+      <input
+        ref="search"
+        v-else-if="searchable"
         :name="name"
         :id="id"
         type="text"
@@ -350,6 +374,9 @@ export default {
     },
     selectedLabelText() {
       return this.showLabels ? this.selectedLabel : "";
+    },
+    searchableAndHasMask() {
+      return this.searchable && this.mask !== "";
     },
     inputStyle() {
       if (
