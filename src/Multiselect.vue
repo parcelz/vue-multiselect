@@ -10,41 +10,48 @@
     @keyup.esc="deactivate()"
     class="multiselect"
     role="combobox"
-    :aria-owns="'listbox-'+id">
-      <slot name="caret" :toggle="toggle">
-        <div @mousedown.prevent.stop="toggle()" class="multiselect__select"></div>
-      </slot>
-      <slot name="clear" :search="search"></slot>
-      <div ref="tags" class="multiselect__tags">
-        <slot
-          name="selection"
-          :search="search"
-          :remove="removeElement"
-          :values="visibleValues"
-          :is-open="isOpen"
-        >
-          <div class="multiselect__tags-wrap" v-show="visibleValues.length > 0">
-            <template v-for="(option, index) of visibleValues" @mousedown.prevent>
-              <slot name="tag" :option="option" :search="search" :remove="removeElement">
-                <span class="multiselect__tag" :key="index">
-                  <span v-text="getOptionLabel(option)"></span>
-                  <i aria-hidden="true" tabindex="1" @keypress.enter.prevent="removeElement(option)"  @mousedown.prevent="removeElement(option)" class="multiselect__tag-icon"></i>
-                </span>
-              </slot>
-            </template>
-          </div>
-          <template v-if="internalValue && internalValue.length > limit">
-            <slot name="limit">
-              <strong class="multiselect__strong" v-text="limitText(internalValue.length - limit)"/>
+    :aria-owns="'listbox-'+id"
+  >
+    <slot name="caret" :toggle="toggle">
+      <div @mousedown.prevent.stop="toggle()" class="multiselect__select"></div>
+    </slot>
+    <slot name="clear" :search="search"></slot>
+    <div ref="tags" class="multiselect__tags">
+      <slot
+        name="selection"
+        :search="search"
+        :remove="removeElement"
+        :values="visibleValues"
+        :is-open="isOpen"
+      >
+        <div class="multiselect__tags-wrap" v-show="visibleValues.length > 0">
+          <template v-for="(option, index) of visibleValues" @mousedown.prevent>
+            <slot name="tag" :option="option" :search="search" :remove="removeElement">
+              <span class="multiselect__tag" :key="index">
+                <span v-text="getOptionLabel(option)"></span>
+                <i
+                  aria-hidden="true"
+                  tabindex="1"
+                  @keypress.enter.prevent="removeElement(option)"
+                  @mousedown.prevent="removeElement(option)"
+                  class="multiselect__tag-icon"
+                ></i>
+              </span>
             </slot>
           </template>
-        </slot>
-        <transition name="multiselect__loading">
-          <slot name="loading">
-            <div v-show="loading" class="multiselect__spinner"/>
+        </div>
+        <template v-if="internalValue && internalValue.length > limit">
+          <slot name="limit">
+            <strong class="multiselect__strong" v-text="limitText(internalValue.length - limit)" />
           </slot>
-        </transition>
-        <input
+        </template>
+      </slot>
+      <transition name="multiselect__loading">
+        <slot name="loading">
+          <div v-show="loading" class="multiselect__spinner" />
+        </slot>
+      </transition>
+      <!-- <input
           ref="search"
           v-if="searchable"
           :name="name"
@@ -67,99 +74,102 @@
           @keydown.delete.stop="removeLastElement()"
           class="multiselect__input"
           :aria-controls="'listbox-'+id"
-        />
-        <span
-          v-if="isSingleLabelVisible"
-          class="multiselect__single"
-          @mousedown.prevent="toggle"
-        >
-          <slot name="singleLabel" :option="singleValue">
-            <template>{{ currentOptionLabel }}</template>
-          </slot>
-        </span>
-        <span
-          v-if="isPlaceholderVisible"
-          class="multiselect__placeholder"
-          @mousedown.prevent="toggle"
-        >
-          <slot name="placeholder">
-            {{ placeholder }}
-          </slot>
-        </span>
+      />-->
+      <span v-if="isSingleLabelVisible" class="multiselect__single" @mousedown.prevent="toggle">
+        <slot name="singleLabel" :option="singleValue">
+          <template>{{ currentOptionLabel }}</template>
+        </slot>
+      </span>
+      <span
+        v-if="isPlaceholderVisible"
+        class="multiselect__placeholder"
+        @mousedown.prevent="toggle"
+      >
+        <slot name="placeholder">{{ placeholder }}</slot>
+      </span>
+    </div>
+    <transition name="multiselect">
+      <div
+        class="multiselect__content-wrapper"
+        v-show="isOpen"
+        @focus="activate"
+        tabindex="-1"
+        @mousedown.prevent
+        :style="{ maxHeight: optimizedHeight + 'px' }"
+        ref="list"
+      >
+        <ul class="multiselect__content" :style="contentStyle" role="listbox" :id="'listbox-'+id">
+          <slot name="beforeList"></slot>
+          <li v-if="multiple && max === internalValue.length">
+            <span class="multiselect__option">
+              <slot
+                name="maxElements"
+              >Maximum of {{ max }} options selected. First remove a selected option to select another.</slot>
+            </span>
+          </li>
+          <template v-if="!max || internalValue.length < max">
+            <li
+              class="multiselect__element"
+              v-for="(option, index) of filteredOptions"
+              :key="index"
+              v-bind:id="id + '-' + index"
+              v-bind:role="!(option && (option.$isLabel || option.$isDisabled)) ? 'option' : null"
+            >
+              <span
+                v-if="!(option && (option.$isLabel || option.$isDisabled))"
+                :class="optionHighlight(index, option)"
+                @click.stop="select(option)"
+                @mouseenter.self="pointerSet(index)"
+                :data-select="option && option.isTag ? tagPlaceholder : selectLabelText"
+                :data-selected="selectedLabelText"
+                :data-deselect="deselectLabelText"
+                class="multiselect__option"
+              >
+                <slot name="option" :option="option" :search="search">
+                  <span>{{ getOptionLabel(option) }}</span>
+                </slot>
+              </span>
+              <span
+                v-if="option && (option.$isLabel || option.$isDisabled)"
+                :data-select="groupSelect && selectGroupLabelText"
+                :data-deselect="groupSelect && deselectGroupLabelText"
+                :class="groupHighlight(index, option)"
+                @mouseenter.self="groupSelect && pointerSet(index)"
+                @mousedown.prevent="selectGroup(option)"
+                class="multiselect__option"
+              >
+                <slot name="option" :option="option" :search="search">
+                  <span>{{ getOptionLabel(option) }}</span>
+                </slot>
+              </span>
+            </li>
+          </template>
+          <li v-show="showNoResults && (filteredOptions.length === 0 && search && !loading)">
+            <span class="multiselect__option">
+              <slot
+                name="noResult"
+                :search="search"
+              >No elements found. Consider changing the search query.</slot>
+            </span>
+          </li>
+          <li v-show="showNoOptions && (options.length === 0 && !search && !loading)">
+            <span class="multiselect__option">
+              <slot name="noOptions">List is empty.</slot>
+            </span>
+          </li>
+          <slot name="afterList"></slot>
+        </ul>
       </div>
-      <transition name="multiselect">
-        <div
-          class="multiselect__content-wrapper"
-          v-show="isOpen"
-          @focus="activate"
-          tabindex="-1"
-          @mousedown.prevent
-          :style="{ maxHeight: optimizedHeight + 'px' }"
-          ref="list"
-        >
-          <ul class="multiselect__content" :style="contentStyle" role="listbox" :id="'listbox-'+id">
-            <slot name="beforeList"></slot>
-            <li v-if="multiple && max === internalValue.length">
-              <span class="multiselect__option">
-                <slot name="maxElements">Maximum of {{ max }} options selected. First remove a selected option to select another.</slot>
-              </span>
-            </li>
-            <template v-if="!max || internalValue.length < max">
-              <li class="multiselect__element"
-                v-for="(option, index) of filteredOptions"
-                :key="index"
-                v-bind:id="id + '-' + index"
-                v-bind:role="!(option && (option.$isLabel || option.$isDisabled)) ? 'option' : null">
-                <span
-                  v-if="!(option && (option.$isLabel || option.$isDisabled))"
-                  :class="optionHighlight(index, option)"
-                  @click.stop="select(option)"
-                  @mouseenter.self="pointerSet(index)"
-                  :data-select="option && option.isTag ? tagPlaceholder : selectLabelText"
-                  :data-selected="selectedLabelText"
-                  :data-deselect="deselectLabelText"
-                  class="multiselect__option">
-                    <slot name="option" :option="option" :search="search">
-                      <span>{{ getOptionLabel(option) }}</span>
-                    </slot>
-                </span>
-                <span
-                  v-if="option && (option.$isLabel || option.$isDisabled)"
-                  :data-select="groupSelect && selectGroupLabelText"
-                  :data-deselect="groupSelect && deselectGroupLabelText"
-                  :class="groupHighlight(index, option)"
-                  @mouseenter.self="groupSelect && pointerSet(index)"
-                  @mousedown.prevent="selectGroup(option)"
-                  class="multiselect__option">
-                    <slot name="option" :option="option" :search="search">
-                      <span>{{ getOptionLabel(option) }}</span>
-                    </slot>
-                </span>
-              </li>
-            </template>
-            <li v-show="showNoResults && (filteredOptions.length === 0 && search && !loading)">
-              <span class="multiselect__option">
-                <slot name="noResult" :search="search">No elements found. Consider changing the search query.</slot>
-              </span>
-            </li>
-            <li v-show="showNoOptions && (options.length === 0 && !search && !loading)">
-              <span class="multiselect__option">
-                <slot name="noOptions">List is empty.</slot>
-              </span>
-            </li>
-            <slot name="afterList"></slot>
-          </ul>
-        </div>
-      </transition>
+    </transition>
   </div>
 </template>
 
 <script>
-import multiselectMixin from './multiselectMixin'
-import pointerMixin from './pointerMixin'
+import multiselectMixin from "./multiselectMixin";
+import pointerMixin from "./pointerMixin";
 
 export default {
-  name: 'vue-multiselect',
+  name: "vue-multiselect",
   mixins: [multiselectMixin, pointerMixin],
   props: {
     /**
@@ -169,7 +179,7 @@ export default {
      */
     name: {
       type: String,
-      default: ''
+      default: ""
     },
     /**
      * String to show when pointing to an option
@@ -178,7 +188,7 @@ export default {
      */
     selectLabel: {
       type: String,
-      default: 'Press enter to select'
+      default: "Press enter to select"
     },
     /**
      * String to show when pointing to an option
@@ -187,7 +197,7 @@ export default {
      */
     selectGroupLabel: {
       type: String,
-      default: 'Press enter to select group'
+      default: "Press enter to select group"
     },
     /**
      * String to show next to selected option
@@ -196,7 +206,7 @@ export default {
      */
     selectedLabel: {
       type: String,
-      default: 'Selected'
+      default: "Selected"
     },
     /**
      * String to show when pointing to an already selected option
@@ -205,7 +215,7 @@ export default {
      */
     deselectLabel: {
       type: String,
-      default: 'Press enter to remove'
+      default: "Press enter to remove"
     },
     /**
      * String to show when pointing to an already selected option
@@ -214,7 +224,7 @@ export default {
      */
     deselectGroupLabel: {
       type: String,
-      default: 'Press enter to deselect group'
+      default: "Press enter to deselect group"
     },
     /**
      * Decide whether to show pointer labels
@@ -279,7 +289,7 @@ export default {
      */
     openDirection: {
       type: String,
-      default: ''
+      default: ""
     },
     /**
      * Shows slot with message about empty options
@@ -300,76 +310,76 @@ export default {
     }
   },
   computed: {
-    isSingleLabelVisible () {
+    isSingleLabelVisible() {
       return (
         (this.singleValue || this.singleValue === 0) &&
         (!this.isOpen || !this.searchable) &&
         !this.visibleValues.length
-      )
+      );
     },
-    isPlaceholderVisible () {
-      return !this.internalValue.length && (!this.searchable || !this.isOpen)
+    isPlaceholderVisible() {
+      return !this.internalValue.length && (!this.searchable || !this.isOpen);
     },
-    visibleValues () {
-      return this.multiple ? this.internalValue.slice(0, this.limit) : []
+    visibleValues() {
+      return this.multiple ? this.internalValue.slice(0, this.limit) : [];
     },
-    singleValue () {
-      return this.internalValue[0]
+    singleValue() {
+      return this.internalValue[0];
     },
-    deselectLabelText () {
-      return this.showLabels ? this.deselectLabel : ''
+    deselectLabelText() {
+      return this.showLabels ? this.deselectLabel : "";
     },
-    deselectGroupLabelText () {
-      return this.showLabels ? this.deselectGroupLabel : ''
+    deselectGroupLabelText() {
+      return this.showLabels ? this.deselectGroupLabel : "";
     },
-    selectLabelText () {
-      return this.showLabels ? this.selectLabel : ''
+    selectLabelText() {
+      return this.showLabels ? this.selectLabel : "";
     },
-    selectGroupLabelText () {
-      return this.showLabels ? this.selectGroupLabel : ''
+    selectGroupLabelText() {
+      return this.showLabels ? this.selectGroupLabel : "";
     },
-    selectedLabelText () {
-      return this.showLabels ? this.selectedLabel : ''
+    selectedLabelText() {
+      return this.showLabels ? this.selectedLabel : "";
     },
-    inputStyle () {
+    inputStyle() {
       if (
         this.searchable ||
         (this.multiple && this.value && this.value.length)
       ) {
         // Hide input by setting the width to 0 allowing it to receive focus
         return this.isOpen
-          ? { width: '100%' }
-          : { width: '0', position: 'absolute', padding: '0' }
+          ? { width: "100%" }
+          : { width: "0", position: "absolute", padding: "0" };
       }
     },
-    contentStyle () {
+    contentStyle() {
       return this.options.length
-        ? { display: 'inline-block' }
-        : { display: 'block' }
+        ? { display: "inline-block" }
+        : { display: "block" };
     },
-    isAbove () {
-      if (this.openDirection === 'above' || this.openDirection === 'top') {
-        return true
+    isAbove() {
+      if (this.openDirection === "above" || this.openDirection === "top") {
+        return true;
       } else if (
-        this.openDirection === 'below' ||
-        this.openDirection === 'bottom'
+        this.openDirection === "below" ||
+        this.openDirection === "bottom"
       ) {
-        return false
+        return false;
       } else {
-        return this.preferredOpenDirection === 'above'
+        return this.preferredOpenDirection === "above";
       }
     },
-    showSearchInput () {
+    showSearchInput() {
       return (
         this.searchable &&
         (this.hasSingleSelectedSlot &&
         (this.visibleSingleValue || this.visibleSingleValue === 0)
           ? this.isOpen
           : true)
-      )
+      );
     }
   }
-}
+};
 </script>
 
 <style>
