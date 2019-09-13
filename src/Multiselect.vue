@@ -166,11 +166,8 @@
 </template>
 
 <script>
-import Vue from "vue";
 import multiselectMixin from "./multiselectMixin";
 import pointerMixin from "./pointerMixin";
-import VueMask from "v-mask";
-Vue.use(VueMask);
 
 export default {
   name: "vue-multiselect",
