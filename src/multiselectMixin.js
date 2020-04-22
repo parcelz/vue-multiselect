@@ -411,6 +411,10 @@ export default {
     },
     search () {
       this.$emit('search-change', this.search, this.id)
+    },
+    initialPointer () {
+      console.log('Watch initialPointer', this.initialPointer)
+      this.pointer = this.initialPointer
     }
   },
   methods: {
