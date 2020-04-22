@@ -339,11 +339,11 @@ export default {
       this.select(this.filteredOptions[0])
     }
 
-    console.log('Checking initial pointer', this.initialPointer)
+    // console.log('Checking initial pointer', this.initialPointer)
     if (this.initialPointer) {
-      console.log('Setting inital pointer')
+      // console.log('Setting inital pointer')
       this.pointer = this.initialPointer
-      console.log('Set inital pointer', this.pointer)
+     // console.log('Set inital pointer', this.pointer)
     }
   },
   computed: {
@@ -413,7 +413,7 @@ export default {
       this.$emit('search-change', this.search, this.id)
     },
     initialPointer () {
-      console.log('Watch initialPointer', this.initialPointer)
+      // console.log('Watch initialPointer', this.initialPointer)
       if (this.initialPointer) {
         this.pointer = this.initialPointer
       }
