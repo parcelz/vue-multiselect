@@ -117,6 +117,15 @@ export default {
     trackBy: {
       type: String
     },
+     /**
+     * Key to compare objects
+     * @default null
+     * @type {Number||Null}
+     */
+    initialPointer: {
+      type: Number,
+      default: null
+    },
     /**
      * Label to look for in option Object
      * @default 'label'
@@ -328,6 +337,10 @@ export default {
       this.options.length
     ) {
       this.select(this.filteredOptions[0])
+    }
+
+    if (this.initialPointer) {
+      this.pointer = this.initialPointer
     }
   },
   computed: {
