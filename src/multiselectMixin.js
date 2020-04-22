@@ -339,8 +339,11 @@ export default {
       this.select(this.filteredOptions[0])
     }
 
+    console.log('Checking initial pointer', this.initialPointer)
     if (this.initialPointer) {
+      console.log('Setting inital pointer')
       this.pointer = this.initialPointer
+      console.log('Set inital pointer', this.pointer)
     }
   },
   computed: {
