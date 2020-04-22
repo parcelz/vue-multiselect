@@ -414,7 +414,9 @@ export default {
     },
     initialPointer () {
       console.log('Watch initialPointer', this.initialPointer)
-      this.pointer = this.initialPointer
+      if (this.initialPointer) {
+        this.pointer = this.initialPointer
+      }
     }
   },
   methods: {
