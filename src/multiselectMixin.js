@@ -341,7 +341,6 @@ export default {
 
     // console.log('Checking initial pointer', this.initialPointer)
     // if (this.initialPointer !== null) {
-      // console.log('Setting inital pointer')
     this.pointer = this.initialPointer
      // console.log('Set inital pointer', this.pointer)
     // }
