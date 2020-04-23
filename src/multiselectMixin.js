@@ -120,11 +120,11 @@ export default {
      /**
      * Key to compare objects
      * @default null
-     * @type {Number||Null}
+     * @type {Number}
      */
     initialPointer: {
       type: Number,
-      default: null
+      default: 0
     },
     /**
      * Label to look for in option Object
@@ -340,11 +340,11 @@ export default {
     }
 
     // console.log('Checking initial pointer', this.initialPointer)
-    if (this.initialPointer !== null) {
+    // if (this.initialPointer !== null) {
       // console.log('Setting inital pointer')
-      this.pointer = this.initialPointer
+    this.pointer = this.initialPointer
      // console.log('Set inital pointer', this.pointer)
-    }
+    // }
   },
   computed: {
     internalValue () {
@@ -414,9 +414,9 @@ export default {
     },
     initialPointer () {
       // console.log('Watch initialPointer', this.initialPointer)
-      if (this.initialPointer !== null) {
-        this.pointer = this.initialPointer
-      }
+      // if (this.initialPointer !== null) {
+      this.pointer = this.initialPointer
+      // }
     }
   },
   methods: {
